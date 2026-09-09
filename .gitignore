@@ -1,0 +1,38 @@
+# Local secrets and account data
+.env
+.env.*
+!.env.example
+credentials*
+*credentials*.json
+*token*.json
+*.har
+*.pcap
+*.pcapng
+private/
+local/
+captures/
+responses/
+fixtures/
+
+# Reverse-engineering inputs and tools are not part of this repository
+artifacts/
+analysis/
+decompiled/
+scripts/
+*.apk
+*.apks
+*.aab
+*.dex
+*.jks
+*.keystore
+
+# Python and editor output
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
