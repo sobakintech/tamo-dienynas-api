@@ -63,6 +63,10 @@ python examples/calendar_week.py
 
 Each example prompts for credentials with hidden input, logs in once, and keeps its token in memory. By default, it prints counts rather than personal content. Add `--show-content` to the homework or calendar example to display the returned school data. See [example options and privacy](examples/README.md) for details. These are small usage examples, not a full SDK.
 
+## Used by
+
+- [better-tamo](https://github.com/sobakintech/better-tamo) is built on this API reference.
+
 ## Important limitations
 
 - Some legacy **GET requests change state**, including payment creation, read-marking, message deletion, impersonation, and logout. HTTP method alone is not a safety classification.
