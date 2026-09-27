@@ -95,10 +95,13 @@ x-selected-role: <roles[n].id>
 | --- | --- |
 | `Role.id` | Value of `x-selected-role` |
 | `Role.roleId` | Separate role identifier used by client comparisons/cache keys |
-| `Role.studentId` | Student identifier, including `MokinioId` in the homework-completion request |
+| `Role.childStudentId` | Student identifier, including `MokinioId` in the homework-completion request. A student's own role returned this field and no `studentId` |
+| `Role.childPersonId` | Person identifier of the student; matches `AuthResponse.personId` for a student login |
 | `Role.personId` | Person identifier carried by the role model |
 | `AuthResponse.personId` | Person identifier returned by legacy login |
 | `Role.active` | Client role-selection state; do not assume all roles are active or interchangeable |
+
+`Role.id` is an opaque, encrypted-looking string that changes on every `core/app/roles` request, even for the same role. An `id` from an earlier response kept working as `x-selected-role`. Don't compare ids across responses to find "the same" role; match on stable fields such as `title` and `subtitle` instead.
 
 Never manufacture a role header from a display name, array index, or student ID. If an account exposes several roles, explicitly select one from that response. See the [Role model](models/data.md#role) for all fields.
 

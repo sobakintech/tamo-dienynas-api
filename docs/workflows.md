@@ -35,7 +35,7 @@ Completion state is stored on the server. Ticking a homework item in the officia
 
 | Field | Source |
 | --- | --- |
-| `MokinioId` | Selected role's `studentId` from `core/app/roles` |
+| `MokinioId` | Selected role's `childStudentId` from `core/app/roles` |
 | `PamokosId` | The work item's `lessonId` |
 | `Atliktas` | `true` to mark done, `false` to unmark |
 
@@ -48,7 +48,7 @@ Authorization: Bearer <token>
 x-selected-role: <Role.id>
 Content-Type: application/x-www-form-urlencoded
 
-MokinioId=<Role.studentId>&PamokosId=<Work.lessonId>&Atliktas=true
+MokinioId=<Role.childStudentId>&PamokosId=<Work.lessonId>&Atliktas=true
 ```
 
 Success is the usual modern `isSuccess == true`. The response has no payload, so it does not return the new `completionDate`. Read the homework again to get the server's value.
@@ -61,9 +61,11 @@ Recovered client behavior:
 - The request is retried up to three times on failure, like other modern calls.
 - After the call finishes, the app updates the displayed item even when the request failed. It sets `completionDate` to the device time for `true` and clears it for `false`. It matches the item by the work item's `studentId` and `lessonId`. A failed tick can therefore look saved until the next refresh.
 
-A homework item is identified only by `lessonId` here. It is unknown what the server does when one lesson has several homework entries. It is also unknown whether it validates `MokinioId` against the token, how it sets `completionDate`, or whether it accepts classwork lesson IDs.
+The work item's `studentId` is the person ID (the same as the role's `childPersonId`), not the student ID. Sending it as `MokinioId` fails with `isSuccess: false` and an error saying the submitted `mokinioId` doesn't match the logged-in student's ID. The student role returned no `studentId` field; `childStudentId` holds the value the server expects.
 
-This is a write operation. It was not validated and is not implemented in the examples. Reading homework does not require calling it.
+A homework item is identified only by `lessonId` here. The server does validate `MokinioId` against the token. It is unknown how it sets `completionDate` or whether it accepts classwork lesson IDs.
+
+This is a write operation. Marking and unmarking were tested live on one student account and both synced with the official app. It is not implemented in the examples. Reading homework does not require calling it.
 
 ### Subject names and grouping
 

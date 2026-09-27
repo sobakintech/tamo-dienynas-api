@@ -48,9 +48,17 @@ Alternate paths, versions, and the message WebView remain untested. These 404 re
 - Modern feeds used the JSON property `result`.
 - Modern responses included extra fields not listed in the client models. The model reference does not cover every server field.
 
+## Write checks
+
+Later, `POST core/app/darbai/namu/atlikimas` was tested on one student account, marking one homework item done and then not done:
+
+- Both requests returned `isSuccess: true`, and the official app showed the same state after a refresh.
+- `MokinioId` had to be the role's `childStudentId`. The work item's `studentId` (the person ID) returned HTTP 200 with `isSuccess: false` and a "nesutampa su prisijungusio mokinio id" error, without changing anything.
+- `core/app/roles` returned a different role `id` on each request; an earlier `id` still worked in `x-selected-role`.
+
 ## Exclusions
 
-Authentication was the only POST. No state-changing endpoints were tested, including GET routes for impersonation, logout, payments, read-marking, and deletion. Message sending, uploads, homework completion, device registration/removal, and test notifications also remain untested.
+Apart from homework completion (see above), authentication was the only POST. No other state-changing endpoints were tested, including GET routes for impersonation, logout, payments, read-marking, and deletion. Message sending, uploads, device registration/removal, and test notifications also remain untested.
 
 Full messages were not opened because fetching them might mark them as read. File URL lookup, downloads, recipient lists, WebViews, arbitrary URLs, and third-party services remain untested. Period, subject, and filter requests that require a prior selection are documented from static analysis only.
 

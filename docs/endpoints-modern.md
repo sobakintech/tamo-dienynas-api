@@ -19,7 +19,7 @@ All 15 operations declare `Accept: application/json` and `Authorization: Bearer 
 | GET | [`core/app/feeds`](#get-core-app-feeds) | Read-oriented | Paid baseline: success |
 | GET | [`core/app/analytics/periodsummary`](#get-core-app-analytics-periodsummary) | Read-oriented | Static only |
 | POST | [`files/filedownloadurl`](#post-files-filedownloadurl) | Download URL lookup | Static only |
-| POST | [`core/app/darbai/namu/atlikimas`](#post-core-app-darbai-namu-atlikimas) | Changes state | Static only |
+| POST | [`core/app/darbai/namu/atlikimas`](#post-core-app-darbai-namu-atlikimas) | Changes state | Live write: success |
 | POST | [`core/app/devices/installation`](#post-core-app-devices-installation) | Changes state | Static only |
 | DELETE | [`core/app/devices/installation/{installationId}`](#delete-core-app-devices-installation-installationid) | Changes state | Static only |
 | POST | [`core/app/utilities/sendnotification`](#post-core-app-utilities-sendnotification) | Changes state | Static only |
@@ -232,15 +232,17 @@ Marks a homework item done or not done. This is the checkbox in the official app
 
 | Field | Value sent by the app |
 | --- | --- |
-| `MokinioId` | `studentId` of the selected role (`core/app/roles`), not the work item's own `studentId` |
+| `MokinioId` | The selected student role's `childStudentId` from `core/app/roles`. Not the work item's own `studentId`, which holds the person ID and is rejected |
 | `PamokosId` | `lessonId` of the work item from [`core/app/darbai`](#get-core-app-darbai) |
 | `Atliktas` | The new state: `true` to mark done, `false` to unmark. Retrofit serializes it as the text `true` or `false` |
 
 The request sets an explicit state; it is not a toggle. Completion is read back through the work item's `completionDate`: non-null means done, null means not done. The app's "completed" and "uncompleted" filters use that field locally. There is no separate completion flag. The response is a plain `StatusResponse` with no payload. See [homework completion](workflows.md#homework-completion) for the full flow and an example request.
 
-Not tested. The client only shows the checkbox to accounts whose login `role` is `2` (a student's own login). Whether the server rejects parent roles, other students' IDs, or classwork lesson IDs is unknown.
+Tested live on a student login: `true` and then `false` both returned `isSuccess: true`, and the official app showed the matching state after a refresh. The server checks `MokinioId` against the token. A wrong ID returns HTTP 200 with `isSuccess: false`, `messageType: "alert"` and `errors: ["Pateiktas mokinioId <sent> nesutampa su prisijungusio mokinio id <expected>."]`.
 
-Evidence: Static only. Client declaration: `ye.p.d` in build 4.17. Call sites: `af.j2` (work repository), `lt.zet.tamo.models.view.WorkViewModel`, `gf.b0` (work list adapter).
+The client only shows the checkbox to accounts whose login `role` is `2` (a student's own login). Whether the server accepts parent roles or classwork lesson IDs is unknown.
+
+Evidence: Live write on one student account. Client declaration: `ye.p.d` in build 4.17. Call sites: `af.j2` (work repository), `lt.zet.tamo.models.view.WorkViewModel`, `gf.b0` (work list adapter).
 
 Response type: `StatusResponse`.
 
