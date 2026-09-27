@@ -75,9 +75,9 @@ Do not infer that two lessons with the same display name necessarily have the sa
 
 The legacy interface declares separate received/sent header lists, individual messages, recipient lookup, read-marking, deletion, sending, and attachment operations. In the paid baseline, both header-list routes returned HTTP 404. No message body was opened and no message operation was changed.
 
-The native send flow calls `SaveMessage` once per selected recipient, then calls `AttachMessageFile` for each attachment using the returned message ID. `SaveMessage` sends URL-encoded form fields `authToken`, `recipientGroup`, `recipientPersonId`, `subject`, and `body`.
+The native send flow calls `SaveMessage` once per selected recipient, then calls `AttachMessageFile` for each attachment using the returned message ID. `SaveMessage` sends URL-encoded form fields `authToken`, `recipientGroup`, `recipientPersonId`, `subject`, and `body`. The recipient fields are the `groupName` and `personId` of a contact from `GetRecipients`. Attachments go to the `messageId` of the `Message` that `SaveMessage` returns. Replies prefill the body with the quoted original under a `<<<<< Jums rašė: >>>>>` line; this is client-side text, not a server reply-threading field.
 
-`SetMessageRead` and `DeleteMessage` use GET despite changing state. The separate read-marking route does not prove that `GetMessage` has no implicit read effects. Do not use message opening as a read-only availability probe.
+`SetMessageRead` and `DeleteMessage` use GET despite changing state. Both take the server `messageId`, not the app's local Realm `id`. Opening an unread message in the app calls `GetMessage` and then `SetMessageRead` automatically. The separate read-marking route does not prove that `GetMessage` has no implicit read effects. Do not use message opening as a read-only availability probe.
 
 The app also uses an authenticated messaging WebView. Successful mobile login or diary access does not prove that this web flow, its cookies, or all of its message routes work in another client.
 
@@ -173,6 +173,14 @@ web_payment_end_text
 app_dourlauth_domains
 acc_not_approved
 ```
+
+`CreatePayment` takes `prodId` and `prodPriceId` from a `Product` and returns an `orderId`. In the SMS flow, the app composes an SMS with the product description and that order ID to the product's `smsNumber`. The user then taps a button that rechecks the subscription. The app recognizes these `ErrorMessage` values:
+
+| `ErrorMessage` | App reaction |
+| --- | --- |
+| `Subscribe bill has an active payment. Paying with another price or created by another user.` | Shows a payment-already-exists screen |
+| `In the role lacks permission.` | Shows a screen for roles that cannot pay, such as a child account |
+| Anything else | Generic error with retry |
 
 The client can hand off to web payment pages or an SMS intent. Those destinations and any additional provider requests are not a fixed mobile API inventory. Payment creation, payment pages, SMS handoff, and purchase behavior were not tested. Do not call `CreatePayment` to display prices.
 

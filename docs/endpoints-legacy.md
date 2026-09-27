@@ -412,9 +412,9 @@ Models: [response.BaseResponse](models/response.md#baseresponse), [response.UrlR
 
 ## POST SaveMessage
 
-Sends/saves a message. The native flow calls it once per selected recipient, then attaches files using the returned message ID. No sending example or live write is included.
+Sends a message. The native flow calls it once per selected recipient. `recipientGroup` and `recipientPersonId` come from that recipient's `groupName` and `personId` in [`GetRecipients`](#get-getrecipients). If there are attachments, the app then calls [`AttachMessageFile`](#post-attachmessagefile) with the returned `Message.messageId`. Attachments are only sent when the envelope reports success. No sending example or live write is included.
 
-Evidence: Static only. Client declaration: `ye.g0.u` in build 4.17.
+Evidence: Static only. Client declaration: `ye.g0.u` in build 4.17. Call sites: `ye.o`, `ff.x2` (compose screen).
 
 Response type: `BaseResponse<Message>`.
 
@@ -454,7 +454,9 @@ Request content type: `application/json; charset=UTF-8`.
 
 Marks a message read. This is a mutation despite using GET.
 
-Evidence: Static only. Client declaration: `ye.g0.e` in build 4.17.
+The app calls it automatically when an unread message is opened, after loading it with `GetMessage`. It sends the message's server `messageId`, not the local Realm `id`. The client checks only the envelope and does not read `isRead`. On success it updates its local copy and decrements its unread counter.
+
+Evidence: Static only. Client declaration: `ye.g0.e` in build 4.17. Call sites: `ze.f4`, `ff.l3` (message view).
 
 Response type: `BaseResponse<SetReadResponse>`.
 
@@ -471,7 +473,9 @@ Models: [response.BaseResponse](models/response.md#baseresponse), [response.SetR
 
 Deletes a message. This is a mutation despite using GET.
 
-Evidence: Static only. Client declaration: `ye.g0.g` in build 4.17.
+The app calls it from the open message's delete action with the server `messageId`. The client checks only the envelope and does not read `isDeleted`. On success it removes the local copy. Whether deletion is per-user, recoverable, or also affects the other party is unknown.
+
+Evidence: Static only. Client declaration: `ye.g0.g` in build 4.17. Call sites: `ze.f4`, `ff.l3` (message view).
 
 Response type: `BaseResponse<DeleteResponse>`.
 
@@ -488,7 +492,9 @@ Models: [response.BaseResponse](models/response.md#baseresponse), [response.Dele
 
 Creates a payment/order. Never call this as a harmless price lookup. No payment was created during validation.
 
-Evidence: Static only. Client declaration: `ye.g0.q` in build 4.17.
+`prodId` and `prodPriceId` come from a `Product` returned by [`GetProducts`](#get-getproducts). The result's `orderId` is used in the SMS payment flow: the app composes an SMS containing the product description followed by the order ID, addressed to the product's `smsNumber`. See [subscriptions and payments](workflows.md#subscriptions-and-payments) for the error messages the app recognizes.
+
+Evidence: Static only. Client declaration: `ye.g0.q` in build 4.17. Call sites: `lt.zet.tamo.ui.subscription.p1` and `lt.zet.tamo.ui.subscription.s`.
 
 Response type: `BaseResponse<PaymentResponse>`.
 
@@ -506,7 +512,9 @@ Models: [response.BaseResponse](models/response.md#baseresponse), [response.Paym
 
 An account-changing operation in the privileged login flow. Its presence does not grant permission to impersonate other users. Not tested.
 
-Evidence: Static only. Client declaration: `ye.g0.p` in build 4.17.
+The app only offers it after a login that returns `role == 3`. On success, the app replaces its stored token, person, role, and access level with the returned values. If the server answers `This function requires the Administrator role.`, the app logs out.
+
+Evidence: Static only. Client declaration: `ye.g0.p` in build 4.17. Call sites: `lt.zet.tamo.ui.login.LoginActivity`, `lt.zet.tamo.ui.login.ImpersonateActivity`.
 
 Response type: `BaseResponse<ImpersonateResponse>`.
 
