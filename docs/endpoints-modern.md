@@ -228,9 +228,19 @@ Request content type: `application/x-www-form-urlencoded`.
 
 ## POST core/app/darbai/namu/atlikimas
 
-Changes homework completion. Form field casing is significant: `MokinioId`, `PamokosId`, `Atliktas`. The app takes `MokinioId` from `Role.studentId`. No completion request was tested.
+Marks a homework item done or not done. This is the checkbox in the official app's homework list. Form field casing is significant: `MokinioId`, `PamokosId`, `Atliktas`.
 
-Evidence: Static only. Client declaration: `ye.p.d` in build 4.17.
+| Field | Value sent by the app |
+| --- | --- |
+| `MokinioId` | `studentId` of the selected role (`core/app/roles`), not the work item's own `studentId` |
+| `PamokosId` | `lessonId` of the work item from [`core/app/darbai`](#get-core-app-darbai) |
+| `Atliktas` | The new state: `true` to mark done, `false` to unmark. Retrofit serializes it as the text `true` or `false` |
+
+The request sets an explicit state; it is not a toggle. Completion is read back through the work item's `completionDate`: non-null means done, null means not done. The app's "completed" and "uncompleted" filters use that field locally. There is no separate completion flag. The response is a plain `StatusResponse` with no payload. See [homework completion](workflows.md#homework-completion) for the full flow and an example request.
+
+Not tested. The client only shows the checkbox to accounts whose login `role` is `2` (a student's own login). Whether the server rejects parent roles, other students' IDs, or classwork lesson IDs is unknown.
+
+Evidence: Static only. Client declaration: `ye.p.d` in build 4.17. Call sites: `af.j2` (work repository), `lt.zet.tamo.models.view.WorkViewModel`, `gf.b0` (work list adapter).
 
 Response type: `StatusResponse`.
 

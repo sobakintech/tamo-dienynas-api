@@ -27,13 +27,41 @@ Modern content includes presentation-oriented objects such as `Content` and `Sty
 
 ### Homework completion
 
-The app uses `POST core/app/darbai/namu/atlikimas` with URL-encoded form fields:
+Completion state is stored on the server. Ticking a homework item in the official app sends it to TAMO, and later homework reads return it. A client that only saves ticks locally will not sync with the official app or other devices.
+
+**Reading.** Each item from `GET core/app/darbai` has a `completionDate`. A non-null value means the item is done. The app's completed/uncompleted filters check this field locally; the route has no completion filter parameter.
+
+**Writing.** The app sends `POST core/app/darbai/namu/atlikimas` with URL-encoded form fields:
 
 | Field | Source |
 | --- | --- |
-| `MokinioId` | Selected role's `studentId` |
-| `PamokosId` | Lesson identifier |
-| `Atliktas` | Completion boolean |
+| `MokinioId` | Selected role's `studentId` from `core/app/roles` |
+| `PamokosId` | The work item's `lessonId` |
+| `Atliktas` | `true` to mark done, `false` to unmark |
+
+Illustrative request with placeholder values:
+
+```http
+POST https://api.tamo.lt/core/app/darbai/namu/atlikimas
+Accept: application/json
+Authorization: Bearer <token>
+x-selected-role: <Role.id>
+Content-Type: application/x-www-form-urlencoded
+
+MokinioId=<Role.studentId>&PamokosId=<Work.lessonId>&Atliktas=true
+```
+
+Success is the usual modern `isSuccess == true`. The response has no payload, so it does not return the new `completionDate`. Read the homework again to get the server's value.
+
+Recovered client behavior:
+
+- The checkbox appears only when the login `role` is `2`, which is a student's own account. Parent logins do not see it.
+- The same list adapter serves classwork (`workType=class`), so a student can also tick classwork items. The request still goes to the `namu` (homework) route.
+- `Atliktas` is an absolute state, not a toggle. Unticking sends `false`.
+- The request is retried up to three times on failure, like other modern calls.
+- After the call finishes, the app updates the displayed item even when the request failed. It sets `completionDate` to the device time for `true` and clears it for `false`. It matches the item by the work item's `studentId` and `lessonId`. A failed tick can therefore look saved until the next refresh.
+
+A homework item is identified only by `lessonId` here. It is unknown what the server does when one lesson has several homework entries. It is also unknown whether it validates `MokinioId` against the token, how it sets `completionDate`, or whether it accepts classwork lesson IDs.
 
 This is a write operation. It was not validated and is not implemented in the examples. Reading homework does not require calling it.
 
@@ -171,4 +199,4 @@ Registration and test notifications change state or cause an external effect. Ne
 
 ## Evidence
 
-Build 4.17 symbols include `af.j0`, `af.j2`, `af.p0`, `af.u0`, `ye.o`, `ye.f0`, `of.l`, `df.j`, `lt.zet.tamo.ui.web.j`, and `lt.zet.tamo.fcm.TamoFcmListenerService`. The endpoint declarations are independently checked against DEX annotations; these workflow descriptions also use the recovered call sites. See [scope](scope.md).
+Build 4.17 symbols include `af.j0`, `af.j2`, `gf.b0`, `lt.zet.tamo.models.view.WorkViewModel`, `af.p0`, `af.u0`, `ye.o`, `ye.f0`, `of.l`, `df.j`, `lt.zet.tamo.ui.web.j`, and `lt.zet.tamo.fcm.TamoFcmListenerService`. The endpoint declarations are independently checked against DEX annotations; these workflow descriptions also use the recovered call sites. See [scope](scope.md).
