@@ -4,13 +4,28 @@
 
 ## Short answer
 
-**For normal diary, grades, homework, and calendar access, assume an active TAMO IŠMANIEMS subscription is required.** The app checks subscription status, and live checks only covered access with premium enabled. The server's requirement for each endpoint is still unverified.
+**An expired subscription did not stop the modern API.** After one account's paid subscription lapsed, every tested modern route still returned real data — diary, homework, classwork, grades, calendar, and feeds included. The access that disappeared was on the legacy service.
 
-The app has a client-side navigation gate driven by server subscription responses. It also handles a legacy server error by opening subscription UI. **The available evidence does not establish that every mobile endpoint works without premium.**
+**An active subscription is still the safe assumption**, because that test used an account the server still classified as a paid *type* with no active subscription — not an account that never paid. A never-paid `free`-type account may be treated differently, and that remains untested.
 
-Core reads worked with an active paid subscription. Free, trial, and expired-subscription access remains untested.
+The app has a client-side navigation gate driven by server subscription responses, and it also handles a legacy server error by opening subscription UI. That gate is what changes for an unpaid user; it is not the same thing as the server withholding data.
 
-This is not a blanket paid-subscription requirement for every route: login and subscription-management calls precede the client gate, and trials or the server-defined `free` classification can grant full client navigation.
+## What actually changed after expiry
+
+Re-running the read-only checks against the same account after its subscription lapsed, the server reported no active subscription while still classifying the account as a paid type:
+
+| Service group | Result after expiry |
+| --- | --- |
+| Modern `api.tamo.lt` — diary, homework, classwork, grades, calendar, feeds, roles, settings | **All succeeded with real content** (for example 10 homework items, 28 classwork items, 27 feed entries) |
+| Legacy `MobileServiceV3` — `GetAssessments`, `GetAwards`, `GetLessons`, `GetNextEvents`, `GetSchedule`, `GetRatingSubjects` | HTTP 200 but **empty**: `Status: 0`, `ErrorCode: 0` |
+| Legacy pre-premium reads — `GetProducts`, `GetGlobalSettings`, `GetAdditionalMenu`, login | Unchanged, still `Status: 1` |
+| `GetReceivedMessageHeaders`, `GetSendMessageHeaders` | Still HTTP 404, exactly as with the subscription active |
+
+Two alternative explanations were ruled out. The legacy emptiness was **not** an empty date window: a control run pinned to the exact date range that had returned data under the active subscription produced the same empty result. And it was **not** the `-13` subscription refusal described below — the server returned `ErrorCode: 0`, not `-13`, so the app's subscription-redirect path was never triggered.
+
+The mechanism behind the legacy emptiness is not identified by this evidence. Legacy-specific entitlement lapsing, retirement of the legacy service, or account-role behavior all remain consistent with what was observed. What is supported is narrower: the modern routes, which carry the content the current app actually uses, continued to serve the account.
+
+Scope limit: this is **one account, after expiry, still classified as a paid type**. It does not establish that a never-paid free account can read the modern routes.
 
 ## Client decision
 
@@ -29,7 +44,9 @@ The state is cached locally. Subscription retrieval failures map to limited mode
 
 The legacy response handler checks for `ErrorCode == -13` and publishes a subscription-navigation action. Activities respond by opening the subscription screen.
 
-This shows that the app anticipates a server-side refusal after a data request. It does not establish the exact server definition of `-13`, the endpoint-by-endpoint policy, or whether every current service uses that code. No such refusal was observed in the paid baseline.
+This shows that the app anticipates a server-side refusal after a data request. It does not establish the exact server definition of `-13`, the endpoint-by-endpoint policy, or whether every current service uses that code. No such refusal was observed in either live run.
+
+Notably, the post-expiry legacy failures used `ErrorCode: 0`, not `-13`. The server emptied those responses without invoking the app's subscription-redirect path, so that path is not the mechanism behind what was observed.
 
 Modern responses use `isSuccess`, `message`, and `errors`, with HTTP failures handled separately. No distinct premium-specific modern HTTP mapping was found in the reviewed client code. A generic error mechanism can still carry an entitlement denial.
 
@@ -42,15 +59,17 @@ Another client can implement this request format without reproducing the officia
 | Question | Answer supported by the evidence |
 | --- | --- |
 | Does login occur before the premium gate? | Yes, in the official client flow. |
-| Are subscription/product endpoints used in limited mode? | Yes, by the client. Paid reads succeeded; unpaid behavior is untested. |
+| Are subscription/product endpoints used in limited mode? | Yes, by the client. They succeeded both with an active subscription and after expiry. |
 | Can the app grant full navigation without a paid record? | Yes, for the server's `free` classification or an active trial. Eligibility is unknown. |
 | Can a custom client read diary/calendar/homework with a paid account? | Yes, these reads worked with an active paid subscription. |
-| Will those same requests work after expiry? | Unknown. Expired-subscription access has not been tested. |
+| Will those same requests work after expiry? | **Yes, on the modern service**, for the account tested: all tested modern routes still returned real data. The legacy school-data routes went empty. Untested for a never-paid free account. |
 | Does changing a local premium flag grant server access? | No such effect has been demonstrated. |
 
 ## Validation limits
 
 An HTTP 200, an empty list, or a successful login alone does not establish free access to a data endpoint. Subscription-changing operations were not tested.
+
+The post-expiry result is a single-account observation. A lapsed paid subscription and a never-paid free account are different server states, and only the first was tested.
 
 ## Evidence
 

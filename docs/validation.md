@@ -6,7 +6,7 @@
 
 Read-only checks covered **24 requests across 23 distinct routes**, including login. The homework route was checked twice, once for `home` and once for `class`.
 
-These results apply with an active paid subscription. Free, trial, and expired-subscription access is untested.
+These results apply with an active paid subscription.
 
 - Login and **21 read requests succeeded**, with successful HTTP responses and API status fields.
 - Two legacy message-header reads returned **HTTP 404** with non-JSON responses.
@@ -14,6 +14,28 @@ These results apply with an active paid subscription. Free, trial, and expired-s
 - Role-scoped reads accepted the returned role's `id` in `x-selected-role`.
 
 Results can vary by role, request parameters, and server changes.
+
+## After subscription expiry
+
+The same account was re-checked once its subscription lapsed, to see whether paid access persisted. Subscription state at that point: no active subscription, but the server still classified the account as a paid **type**.
+
+| Service group | Result |
+| --- | --- |
+| Modern `api.tamo.lt` — all 10 tested routes | Succeeded with real content |
+| Legacy `MobileServiceV3` school data — `GetAssessments`, `GetAwards`, `GetLessons`, `GetNextEvents`, `GetSchedule`, `GetRatingSubjects` | HTTP 200, empty: `Status: 0`, `ErrorCode: 0` |
+| Legacy pre-premium reads — `GetProducts`, `GetGlobalSettings`, `GetAdditionalMenu` | Unchanged, `Status: 1` |
+| `GetReceivedMessageHeaders`, `GetSendMessageHeaders` | Unchanged, HTTP 404 |
+
+**The split follows API generation, not the premium gate.** The modern routes — which carry the diary, homework, classwork, grades, calendar, and feeds content the app actually uses — continued to serve the account in full. The legacy school-data routes returned nothing.
+
+Two confounders were eliminated:
+
+- **Not the date range.** A control run repeated only the legacy routes, pinned to the exact date window that had returned data under the active subscription. It produced the same empty result.
+- **Not the `-13` subscription refusal.** The server returned `ErrorCode: 0`, so the app's subscription-redirect path was not triggered.
+
+The mechanism is not identified. Legacy-specific entitlement lapsing, retirement of the legacy service, and account-role behavior all remain consistent with the observation.
+
+**Limits:** one account, after expiry, still of a paid type. A never-paid free account is untested, and the legacy emptiness is unexplained. Nothing here was a write, payment, upload, or logout request.
 
 ## Successful requests
 

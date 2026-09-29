@@ -10,23 +10,23 @@ All 28 fixed operations are listed below. Authenticated GETs send `authToken` in
 
 | Method | Route | Operation | Evidence |
 | --- | --- | --- | --- |
-| POST | [`AuthenticateV2`](#post-authenticatev2) | Authentication | Paid baseline: success |
-| GET | [`GetSubscriptionType`](#get-getsubscriptiontype) | Read-oriented | Paid baseline: success |
-| GET | [`GetUserSubscriptions`](#get-getusersubscriptions) | Read-oriented | Paid baseline: success |
-| GET | [`GetProducts`](#get-getproducts) | Read-oriented | Paid baseline: success |
-| GET | [`GetGlobalSettings`](#get-getglobalsettings) | Read-oriented | Paid baseline: success |
-| GET | [`GetAdditionalMenu`](#get-getadditionalmenu) | Read-oriented | Paid baseline: success |
+| POST | [`AuthenticateV2`](#post-authenticatev2) | Authentication | Paid **and** post-expiry: success |
+| GET | [`GetSubscriptionType`](#get-getsubscriptiontype) | Read-oriented | Paid **and** post-expiry: success |
+| GET | [`GetUserSubscriptions`](#get-getusersubscriptions) | Read-oriented | Paid **and** post-expiry: success |
+| GET | [`GetProducts`](#get-getproducts) | Read-oriented | Paid **and** post-expiry: success |
+| GET | [`GetGlobalSettings`](#get-getglobalsettings) | Read-oriented | Paid **and** post-expiry: success |
+| GET | [`GetAdditionalMenu`](#get-getadditionalmenu) | Read-oriented | Paid **and** post-expiry: success |
 | GET | [`GetWindowFilters`](#get-getwindowfilters) | Read-oriented | Static only |
-| GET | [`GetAssessments`](#get-getassessments) | Read-oriented | Paid baseline: success |
-| GET | [`GetAwards`](#get-getawards) | Read-oriented | Paid baseline: success |
-| GET | [`GetLessons`](#get-getlessons) | Read-oriented | Paid baseline: success |
-| GET | [`GetNextEvents`](#get-getnextevents) | Read-oriented | Paid baseline: success |
-| GET | [`GetSchedule`](#get-getschedule) | Read-oriented | Paid baseline: success |
+| GET | [`GetAssessments`](#get-getassessments) | Read-oriented | Paid: success; **empty after expiry** |
+| GET | [`GetAwards`](#get-getawards) | Read-oriented | Paid: success; **empty after expiry** |
+| GET | [`GetLessons`](#get-getlessons) | Read-oriented | Paid: success; **empty after expiry** |
+| GET | [`GetNextEvents`](#get-getnextevents) | Read-oriented | Paid: success; **empty after expiry** |
+| GET | [`GetSchedule`](#get-getschedule) | Read-oriented | Paid: success; **empty after expiry** |
 | GET | [`GetPeriodAssessments`](#get-getperiodassessments) | Read-oriented | Static only |
-| GET | [`GetRatingSubjects`](#get-getratingsubjects) | Read-oriented | Paid baseline: success |
+| GET | [`GetRatingSubjects`](#get-getratingsubjects) | Read-oriented | Paid: success; **empty after expiry** |
 | GET | [`GetRatings`](#get-getratings) | Read-oriented | Static only |
-| GET | [`GetReceivedMessageHeaders`](#get-getreceivedmessageheaders) | Read-oriented | Paid baseline: HTTP 404 |
-| GET | [`GetSendMessageHeaders`](#get-getsendmessageheaders) | Read-oriented | Paid baseline: HTTP 404 |
+| GET | [`GetReceivedMessageHeaders`](#get-getreceivedmessageheaders) | Read-oriented | HTTP 404 in both runs |
+| GET | [`GetSendMessageHeaders`](#get-getsendmessageheaders) | Read-oriented | HTTP 404 in both runs |
 | GET | [`GetMessage`](#get-getmessage) | Read; side effects unverified | Static only |
 | GET | [`GetRecipients`](#get-getrecipients) | Read-oriented | Static only |
 | GET | [`GetMessageFiles`](#get-getmessagefiles) | Read-oriented | Static only |

@@ -8,15 +8,15 @@ All 15 operations declare `Accept: application/json` and `Authorization: Bearer 
 
 | Method | Route | Operation | Evidence |
 | --- | --- | --- | --- |
-| GET | [`core/app/settings/StyleRef`](#get-core-app-settings-styleref) | Read-oriented | Paid baseline: success |
-| GET | [`core/app/roles`](#get-core-app-roles) | Read-oriented | Paid baseline: success |
-| GET | [`core/app/settings/global`](#get-core-app-settings-global) | Read-oriented | Paid baseline: success |
-| GET | [`core/app/dienynas`](#get-core-app-dienynas) | Read-oriented | Paid baseline: success |
-| GET | [`core/app/darbai`](#get-core-app-darbai) | Read-oriented | Paid baseline: success |
-| GET | [`core/app/calendar/badges`](#get-core-app-calendar-badges) | Read-oriented | Paid baseline: success |
-| GET | [`core/app/calendar/events/allDay`](#get-core-app-calendar-events-allday) | Read-oriented | Paid baseline: success |
-| GET | [`v2/app/calendar/events`](#get-v2-app-calendar-events) | Read-oriented | Paid baseline: success |
-| GET | [`core/app/feeds`](#get-core-app-feeds) | Read-oriented | Paid baseline: success |
+| GET | [`core/app/settings/StyleRef`](#get-core-app-settings-styleref) | Read-oriented | Paid **and** post-expiry: success |
+| GET | [`core/app/roles`](#get-core-app-roles) | Read-oriented | Paid **and** post-expiry: success |
+| GET | [`core/app/settings/global`](#get-core-app-settings-global) | Read-oriented | Paid **and** post-expiry: success |
+| GET | [`core/app/dienynas`](#get-core-app-dienynas) | Read-oriented | Paid **and** post-expiry: success |
+| GET | [`core/app/darbai`](#get-core-app-darbai) | Read-oriented | Paid **and** post-expiry: success |
+| GET | [`core/app/calendar/badges`](#get-core-app-calendar-badges) | Read-oriented | Paid **and** post-expiry: success |
+| GET | [`core/app/calendar/events/allDay`](#get-core-app-calendar-events-allday) | Read-oriented | Paid **and** post-expiry: success |
+| GET | [`v2/app/calendar/events`](#get-v2-app-calendar-events) | Read-oriented | Paid **and** post-expiry: success |
+| GET | [`core/app/feeds`](#get-core-app-feeds) | Read-oriented | Paid **and** post-expiry: success |
 | GET | [`core/app/analytics/periodsummary`](#get-core-app-analytics-periodsummary) | Read-oriented | Static only |
 | POST | [`files/filedownloadurl`](#post-files-filedownloadurl) | Download URL lookup | Static only |
 | POST | [`core/app/darbai/namu/atlikimas`](#post-core-app-darbai-namu-atlikimas) | Changes state | Live write: success |

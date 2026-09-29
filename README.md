@@ -15,9 +15,13 @@ Based on reverse engineering the **TAMO IŠMANIEMS** Android app, with selected 
 
 ## Subscription requirement
 
-**Assume you need an active TAMO IŠMANIEMS subscription for diary, grades, homework, and calendar access.** These reads are only verified with premium enabled. Unpaid and expired-subscription access remains untested.
+**An active TAMO IŠMANIEMS subscription is still the safe assumption — but it is not required for the modern API in at least one tested case.**
 
-This is not a confirmed requirement for every endpoint. Login and subscription calls precede the app's premium gate, and trials or a server-defined `free` category can also grant access. See [premium behavior](docs/premium.md).
+After one account's subscription lapsed, every tested modern route still returned real data: diary, homework, classwork, grades, calendar, and feeds. What stopped returning data was the older legacy `MobileServiceV3` school-data routes, which came back empty (`Status: 0`).
+
+Two caveats keep this from being a blanket answer: that account was still classified by the server as a paid *type* with no active subscription, which is a different state from never having paid; and a never-paid `free`-type account has not been tested. The modern routes may not be available to one.
+
+See [premium behavior](docs/premium.md) and [after-expiry results](docs/validation.md#after-subscription-expiry).
 
 ## Start here
 
@@ -49,7 +53,9 @@ Read-only checks covered 24 requests across 23 distinct routes, including login:
 - `GetReceivedMessageHeaders` and `GetSendMessageHeaders` returned HTTP 404.
 - No payment, upload, message change, homework change, push registration, or logout was tested.
 
-These results do **not** confirm access without premium. An endpoint present in the APK is not necessarily available on the current server. See [validation](docs/validation.md) for details.
+After that account's subscription lapsed, the same checks were repeated: all modern routes still returned data, while the legacy school-data routes returned empty results. See [validation](docs/validation.md#after-subscription-expiry).
+
+These results are from **one account**. An endpoint present in the APK is not necessarily available on the current server, and a never-paid account is untested. See [validation](docs/validation.md) for details.
 
 ## Run an example
 
