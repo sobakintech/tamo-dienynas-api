@@ -72,6 +72,7 @@ Each example prompts for credentials with hidden input, logs in once, and keeps 
 ## Used by
 
 - [better-tamo](https://github.com/sobakintech/better-tamo) is built on this API reference.
+- [tamo-dienynas-mcp](https://github.com/sobakintech/tamo-dienynas-mcp) is a read-only MCP server that lets AI assistants read the TAMO dienynas.
 
 ## Important limitations
 
